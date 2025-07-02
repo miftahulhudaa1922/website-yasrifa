@@ -1,12 +1,17 @@
+// app/api/informasi/by-slug/[slug]/route.ts
+
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextRequest } from 'next/server'
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { slug: string } }
-) {
-  const { slug } = params
+export async function GET(req: NextRequest) {
+  // Ambil slug dari URL
+  const url = new URL(req.url)
+  const slug = url.pathname.split('/').pop() // atau parsing dengan regex sesuai kebutuhan
+
+  if (!slug) {
+    return NextResponse.json({ message: 'Slug tidak ditemukan' }, { status: 400 })
+  }
 
   try {
     const informasi = await prisma.informasi.findUnique({
@@ -19,7 +24,7 @@ export async function GET(
 
     return NextResponse.json(informasi)
   } catch (error) {
-    console.error('❌ Error mengambil informasi:', error)
+    console.error('Error:', error)
     return NextResponse.json({ message: 'Gagal mengambil detail' }, { status: 500 })
   }
 }
