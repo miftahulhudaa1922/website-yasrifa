@@ -32,13 +32,12 @@
     ]
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "next-env.d.ts",
-    "types/next-auth.d.ts",
-    ".next/types/**/*.ts"
+     "next-env.d.ts",
+  "**/*.ts",
+  "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    ".next"
   ]
 }
