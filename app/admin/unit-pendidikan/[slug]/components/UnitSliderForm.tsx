@@ -29,7 +29,8 @@ export default function UnitSliderAdmin({ slug }: { slug: string }) {
       const data = await res.json();
       setSlides(Array.isArray(data) ? data : data.data ?? []);
     } catch (err) {
-      console.error("Gagal memuat slider:", err);
+      console.error(err);
+      showAlert("Gagal menyimpan slide", "error");
     }
   };
 
@@ -54,7 +55,7 @@ export default function UnitSliderAdmin({ slug }: { slug: string }) {
 
       return data.secure_url;
     } catch (err) {
-      console.error("❌ Respon bukan JSON:", text);
+      console.error(err, text);
       throw new Error("Respon upload tidak valid");
     }
   };
