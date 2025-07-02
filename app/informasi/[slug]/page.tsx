@@ -1,36 +1,41 @@
-"use client";
+'use client'
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 interface InfoDetail {
-  title: string;
-  image: string;
-  content: string;
-  createdAt: string;
+  title: string
+  image: string
+  content: string
+  createdAt: string
 }
 
-export default function DetailPage({ params }: { params: { slug: string } }) {
-  const router = useRouter();
-  const [info, setInfo] = useState<InfoDetail | null>(null);
+export default function DetailPage() {
+  const router = useRouter()
+  const params = useParams()
+  const slug = params.slug as string
+
+  const [info, setInfo] = useState<InfoDetail | null>(null)
 
   useEffect(() => {
+    if (!slug) return
+
     const fetchData = async () => {
-      const { slug } = await params; // ✅ FIXED: tunggu resolve Promise
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/informasi/by-slug/${slug}`,
-        {
-          cache: "no-store",
-        }
-      );
-      const data = await res.json();
-      setInfo(data);
-    };
+      try {
+        const res = await fetch(`/api/informasi/by-slug/${slug}`, {
+          cache: 'no-store',
+        })
+        const data = await res.json()
+        setInfo(data)
+      } catch (error) {
+        console.error('Gagal memuat detail:', error)
+      }
+    }
 
-    fetchData();
-  }, [params]);
+    fetchData()
+  }, [slug])
 
-  if (!info) return <p className="text-center py-10">Memuat...</p>;
+  if (!info) return <p className="text-center py-10">Memuat...</p>
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
@@ -46,11 +51,7 @@ export default function DetailPage({ params }: { params: { slug: string } }) {
           strokeWidth="2"
           viewBox="0 0 24 24"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15 19l-7-7 7-7"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
         Kembali
       </button>
@@ -58,7 +59,7 @@ export default function DetailPage({ params }: { params: { slug: string } }) {
       {/* Konten Informasi */}
       <h1 className="text-3xl font-bold text-green-800 mb-4">{info.title}</h1>
       <p className="text-sm text-gray-500 mb-6">
-        {new Date(info.createdAt).toLocaleString("id-ID")}
+        {new Date(info.createdAt).toLocaleString('id-ID')}
       </p>
       <img
         src={info.image}
@@ -70,5 +71,5 @@ export default function DetailPage({ params }: { params: { slug: string } }) {
         dangerouslySetInnerHTML={{ __html: info.content }}
       />
     </div>
-  );
+  )
 }
