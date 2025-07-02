@@ -1,14 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 
-export default function UnitSliderAdmin({ params }: { params: { slug: string } }) {
+export default function UnitSliderAdmin() {
+  const params = useParams()
+  const slug = typeof params.slug === 'string' ? params.slug : Array.isArray(params.slug) ? params.slug[0] : ''
+
   const [title, setTitle] = useState('')
   const [image, setImage] = useState<File | null>(null)
   const [data, setData] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-
-  const slug = params.slug
 
   const fetchSlider = async () => {
     try {
@@ -70,7 +72,9 @@ export default function UnitSliderAdmin({ params }: { params: { slug: string } }
   }
 
   useEffect(() => {
-    fetchSlider()
+    if (slug) {
+      fetchSlider()
+    }
   }, [slug])
 
   return (
