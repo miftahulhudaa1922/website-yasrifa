@@ -2,12 +2,13 @@
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
-// GET: Ambil konten unit pendidikan berdasarkan slug
-export async function GET(
-  _: Request,
-  context: { params: Promise<{ slug: string }> }
-) {
-  const { slug } = await context.params
+// ✅ GET: Ambil konten unit pendidikan berdasarkan slug
+export async function GET(req: NextRequest) {
+  const slug = req.nextUrl.pathname.split('/').pop() // Ambil slug dari path
+
+  if (!slug) {
+    return NextResponse.json({ message: 'Slug tidak ditemukan' }, { status: 400 })
+  }
 
   try {
     const unit = await prisma.unitContent.findUnique({
@@ -33,23 +34,21 @@ export async function GET(
   }
 }
 
-// PUT: Perbarui sejarah, visi, misi
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { slug: string } }
-) {
-  const { slug } = params
-  const body = await req.json()
-  const { sejarah, visi, misi } = body
+// ✅ PUT: Perbarui sejarah, visi, misi
+export async function PUT(req: NextRequest) {
+  const slug = req.nextUrl.pathname.split('/').pop() // Ambil slug dari path
+
+  if (!slug) {
+    return NextResponse.json({ message: 'Slug tidak ditemukan' }, { status: 400 })
+  }
 
   try {
+    const body = await req.json()
+    const { sejarah, visi, misi } = body
+
     const updated = await prisma.unitContent.update({
       where: { slug },
-      data: {
-        sejarah,
-        visi,
-        misi,
-      },
+      data: { sejarah, visi, misi },
     })
 
     return NextResponse.json(updated)
