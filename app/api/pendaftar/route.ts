@@ -8,12 +8,6 @@ import PendaftarDocument from '@/lib/pdf/PendaftarDocument'
 import React, { createElement } from 'react'
 import cloudinary from '@/lib/cloudinary'
 
-interface UploadResult {
-  secure_url: string
-  [key: string]: unknown 
-}
-
-
 export async function POST(req: Request) {
   try {
     const data = await req.formData()
@@ -42,16 +36,12 @@ export async function POST(req: Request) {
     const bytes = await foto.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    const uploadResult = await new Promise<UploadResult>((resolve, reject) => {
-      if (!cloudinary.uploader.upload_stream) {
-        return reject(new Error('Cloudinary upload stream tidak tersedia.'))
-      }
+    const uploadResult = await new Promise<any>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         { folder: 'pendaftar' },
         (err, result) => {
           if (err) return reject(err)
-          if (!result) return reject(new Error('Upload ke Cloudinary gagal'))
-          resolve(result as UploadResult)
+          resolve(result)
         }
       ).end(buffer)
     })
