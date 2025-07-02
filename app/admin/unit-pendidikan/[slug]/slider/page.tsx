@@ -3,13 +3,20 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 
+interface Slider {
+  id: string
+  title: string
+  image: string
+}
+
+
 export default function UnitSliderAdmin() {
   const params = useParams()
   const slug = typeof params.slug === 'string' ? params.slug : Array.isArray(params.slug) ? params.slug[0] : ''
 
   const [title, setTitle] = useState('')
   const [image, setImage] = useState<File | null>(null)
-  const [data, setData] = useState<any[]>([])
+  const [data, setData] = useState<Slider[]>([])
   const [loading, setLoading] = useState(false)
 
   const fetchSlider = async () => {
