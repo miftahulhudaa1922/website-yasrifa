@@ -1,12 +1,12 @@
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export async function GET(
-  req: Request,
-  context: { params: { slug: string } }
+  _req: NextRequest,
+  { params }: { params: { slug: string } }
 ) {
-
-  const { slug } = await context.params
+  const { slug } = params
 
   try {
     const informasi = await prisma.informasi.findUnique({
@@ -19,7 +19,7 @@ export async function GET(
 
     return NextResponse.json(informasi)
   } catch (error) {
-    console.error('Error:', error)
+    console.error('❌ Error mengambil informasi:', error)
     return NextResponse.json({ message: 'Gagal mengambil detail' }, { status: 500 })
   }
 }
