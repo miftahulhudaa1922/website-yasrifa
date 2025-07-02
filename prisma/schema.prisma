@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Pendaftar {
+  id            String   @id @default(cuid())
+  nama          String
+  tempatLahir   String
+  tanggalLahir  DateTime
+  jenisKelamin  String
+  agama         String
+  asalSekolah   String
+  nisn          String
+  noUjian       String
+  nik           String
+
+  alamat        String
+  desa          String
+  kecamatan     String
+  kabupaten     String
+  provinsi      String
+  tinggalDengan String
+
+  ayahNama      String
+  ayahLahir     String
+  ayahPendidikan String
+  ayahPekerjaan String
+  ayahPenghasilan String
+  ibuNama       String
+  ibuLahir      String
+  ibuPendidikan String
+  ibuPekerjaan  String
+  ibuPenghasilan String
+
+  telp          String
+  email         String
+
+  saudara       Int
+  tinggi        Int
+  berat         Int
+  hobi          String
+
+  pendidikanTujuan String
+  foto          String?
+  createdAt     DateTime @default(now())
+}
+
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Slider {
+  id         String       @id @default(cuid())
+  title      String
+  image      String
+  unitSlug   String?
+  unit       UnitContent? @relation(fields: [unitSlug], references: [slug])
+  createdAt  DateTime     @default(now())
+}
+
+model Profil {
+  id        String   @id @default(uuid())
+  type      ProfilType    @unique
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+enum ProfilType {
+  SEJARAH
+  SAMBUTAN
+  VISI_MISI
+}
+
+model UnitPendidikan {
+  id          String   @id @default(uuid())
+  nama        String   @unique                 // PAUD, SMPI, MA, dll
+  slug        String   @unique                 // Untuk URL misal: 'paud', 'smpi'
+  deskripsi   String                            // Konten HTML atau Markdown
+  gambar      String?                           // Path ke file gambar (opsional)
+  urutan      Int       @default(0)             // Untuk mengatur urutan tampil
+  aktif       Boolean   @default(true)          // Bisa toggle tampil/tidak
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+
+model Informasi {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  slug      String   @unique
+  excerpt   String
+  image     String
+  createdAt DateTime @default(now())
+  published Boolean  @default(true)
+}
+
+model Galeri {
+  id         String       @id @default(cuid())
+  title      String?
+  image      String
+  unitSlug   String?
+  unit       UnitContent? @relation(fields: [unitSlug], references: [slug])
+  createdAt  DateTime     @default(now())
+}
+
+model Kontak {
+  id        String   @id @default(uuid())
+  alamat    String
+  email     String?
+  telp      String?
+  mapsUrl   String? // Google Maps embed URL
+  createdAt DateTime @default(now())
+}
+
+model UnitContent {
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  name       String
+  sejarah    String?
+  visi       String?
+  misi       String?
+  sliders    Slider[] // Relasi ke gambar slider
+  galeris    Galeri[] // Relasi ke galeri foto
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model UnitSlider {
+  id        String   @id @default(uuid())
+  title     String
+  image     String
+  unitSlug  String   // e.g. "madrasah-diniyah", "paud"
+  createdAt DateTime @default(now())
+}
+
+model UnitGaleri {
+  id        String   @id @default(uuid())
+  image     String
+  caption   String?
+  unitSlug  String
+  createdAt DateTime @default(now())
+}
+
+
