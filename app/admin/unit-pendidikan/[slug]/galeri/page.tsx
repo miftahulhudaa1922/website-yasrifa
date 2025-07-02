@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 
 interface GaleriItem {
   id: string
@@ -8,16 +9,19 @@ interface GaleriItem {
   caption: string
 }
 
-export default function UnitGaleriAdmin({ params }: { params: { slug: string } }) {
+export default function UnitGaleriAdmin() {
+  const params = useParams()
+  const slug = typeof params.slug === 'string' ? params.slug : Array.isArray(params.slug) ? params.slug[0] : ''
+
   const [caption, setCaption] = useState('')
   const [image, setImage] = useState<File | null>(null)
   const [galeri, setGaleri] = useState<GaleriItem[]>([])
   const [loading, setLoading] = useState(false)
 
-  const slug = params.slug
-
   useEffect(() => {
-    fetchGaleri()
+    if (slug) {
+      fetchGaleri()
+    }
   }, [slug])
 
   const fetchGaleri = async () => {
@@ -36,7 +40,7 @@ export default function UnitGaleriAdmin({ params }: { params: { slug: string } }
   const uploadToCloudinary = async (file: File) => {
     const formData = new FormData()
     formData.append('file', file)
-    formData.append('upload_preset', 'ml_defaultt') // GANTI sesuai upload preset kamu
+    formData.append('upload_preset', 'ml_defaultt') // ganti dengan preset Cloudinary kamu
     formData.append('folder', 'unit-galeri')
 
     const res = await fetch('https://api.cloudinary.com/v1_1/dtbv31w2o/image/upload', {
