@@ -9,17 +9,20 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 })
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: Request) {
   try {
+    const url = new URL(req.url)
+    const id = url.pathname.split('/').pop() // Ambil ID dari path
+
+    if (!id) {
+      return NextResponse.json({ message: 'ID tidak ditemukan di URL' }, { status: 400 })
+    }
+
     const formData = await req.formData()
 
     const title = formData.get('title')?.toString() || ''
     const content = formData.get('content')?.toString() || ''
-    const excerpt =
-      formData.get('excerpt')?.toString() || content.slice(0, 150)
+    const excerpt = formData.get('excerpt')?.toString() || content.slice(0, 150)
 
     const file = formData.get('image') as File | null
 
@@ -32,23 +35,20 @@ export async function PUT(
 
     let imageUrl = ''
 
-    // Jika ada file gambar, upload ke Cloudinary
     if (file && typeof file === 'object') {
       const buffer = Buffer.from(await file.arrayBuffer())
 
       const upload = await new Promise<{ secure_url: string }>((resolve, reject) => {
-        cloudinary.uploader
-          .upload_stream(
-            {
-              folder: 'informasi',
-              resource_type: 'image',
-            },
-            (error, result) => {
-              if (error || !result) reject(error)
-              else resolve(result as { secure_url: string })
-            }
-          )
-          .end(buffer)
+        cloudinary.uploader.upload_stream(
+          {
+            folder: 'informasi',
+            resource_type: 'image',
+          },
+          (error, result) => {
+            if (error || !result) reject(error)
+            else resolve(result as { secure_url: string })
+          }
+        ).end(buffer)
       })
 
       imageUrl = upload.secure_url
@@ -57,7 +57,7 @@ export async function PUT(
     const slug = slugify(title)
 
     const updated = await prisma.informasi.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         content,
@@ -74,5 +74,35 @@ export async function PUT(
       { message: 'Gagal memperbarui data' },
       { status: 500 }
     )
+  }
+}
+
+
+export async function DELETE(req: Request) {
+  try {
+    const url = new URL(req.url)
+    const id = url.pathname.split('/').pop() // Ambil ID dari path
+
+    if (!id) {
+      return NextResponse.json({ message: 'ID tidak ditemukan di URL' }, { status: 400 })
+    }
+
+    // Pastikan data ada sebelum dihapus
+    const existing = await prisma.informasi.findUnique({
+      where: { id },
+    })
+
+    if (!existing) {
+      return NextResponse.json({ message: 'Data tidak ditemukan' }, { status: 404 })
+    }
+
+    await prisma.informasi.delete({
+      where: { id },
+    })
+
+    return NextResponse.json({ message: 'Berhasil dihapus' })
+  } catch (error) {
+    console.error('❌ Gagal menghapus:', error)
+    return NextResponse.json({ message: 'Gagal menghapus data' }, { status: 500 })
   }
 }
